@@ -7,12 +7,15 @@
 	let cursorX = 0;
 	let cursorY = 0;
 
+    let isRotating = false;
+    let currentRotation = 0;
+
 	interface Vector {
 		x: number;
 		y: number;
 	}
 
-	let crackers: Vector[] = [];
+	let crackers: [position: Vector, rotation: number][] = [];
 
 	let cellDimensions: Vector = { x: 10, y: 10 };
 
@@ -41,22 +44,52 @@
 		}
 
         // draw the crackers
-        context.fillStyle = '#f00';
+        context.fillStyle = '#4E878C';
         for (const cracker of crackers) {
+            context.save();
             context.beginPath();
-            context.rect(cracker.x - trueSize.x / 2, cracker.y - trueSize.y / 2, trueSize.x, trueSize.y);
+            context.translate(cracker[0].x, cracker[0].y);
+            context.rotate(cracker[1]);
+            context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
             context.fill();
+            context.restore();
+        }
+
+        // handle rotation
+        if (isRotating) {
+            currentRotation += 0.1;
+            if (currentRotation >= 2 * Math.PI) {
+                currentRotation = 0;
+                isRotating = false;
+            }
         }
 
 		// draw a rectangle at the cursor of unit size 1
+        context.save();
 		context.beginPath();
-		context.fillStyle = '#000';
-		context.rect(cursorX - trueSize.x / 2, cursorY - trueSize.y / 2, trueSize.x, trueSize.y);
+		context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        context.translate(cursorX, cursorY);
+        context.rotate(currentRotation);
+        context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
 		context.fill();
+        context.restore();
 	};
 </script>
 
-<svelte:window bind:innerWidth={width} bind:innerHeight={height} />
+<svelte:window
+    bind:innerWidth={width}
+    bind:innerHeight={height}
+    on:keydown={({ key }) => {
+        if (key === 'r') {
+            isRotating = true;
+        }
+    }}
+    on:keyup={({ key }) => {
+        if (key === 'r') {
+            isRotating = false;
+        }
+    }}
+/>
 
 <Canvas
 	{width}
@@ -66,7 +99,7 @@
 		cursorY = clientY;
 	}}
     on:click={() => {
-        crackers.push({ x: cursorX, y: cursorY });
+        crackers.push([{ x: cursorX, y: cursorY }, currentRotation]);
     }}
 >
 	<Layer {render} />
