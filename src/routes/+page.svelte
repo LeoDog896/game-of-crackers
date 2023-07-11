@@ -2,8 +2,11 @@
 	import { Canvas, Layer, type Render } from 'svelte-canvas';
 	import intersect from "polygons-intersect"
 
-	let width = 640;
-	let height = 640;
+	let containerWidth = 0;
+	let containerHeight = 0;
+
+	$: width = Math.min(containerWidth, containerHeight);
+	$: height = Math.min(containerWidth, containerHeight);
 
 	let cursorX = 0;
 	let cursorY = 0;
@@ -141,18 +144,31 @@
     }}
 />
 
-<Canvas
-	{width}
-	{height}
-	style="{rotationDisabled ? 'cursor: not-allowed' : ''}"
-	on:mousemove={({ clientX, clientY }) => {
-		cursorX = clientX;
-		cursorY = clientY;
-	}}
-    on:click={() => {
-		if (rotationDisabled) return;
-        crackers = [...crackers, [{ x: cursorX, y: cursorY }, currentRotation]];
-    }}
->
-	<Layer {render} />
-</Canvas>
+<div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
+	<Canvas
+		{width}
+		{height}
+		style="border: 1px solid #ccc; {rotationDisabled ? 'cursor: not-allowed' : ''}"
+		on:mousemove={({ offsetX, offsetY }) => {
+			cursorX = offsetX;
+			cursorY = offsetY;
+		}}
+		on:click={() => {
+			if (rotationDisabled) return;
+			crackers = [...crackers, [{ x: cursorX, y: cursorY }, currentRotation]];
+		}}
+	>
+		<Layer {render} />
+	</Canvas>
+</div>
+
+<style>
+	.container {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		
+	}
+</style>
