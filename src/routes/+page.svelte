@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Canvas, Layer, type Render } from 'svelte-canvas';
-	import intersect from "polygons-intersect"
+	import intersect from 'polygons-intersect';
 
 	let containerWidth = 0;
 	let containerHeight = 0;
@@ -10,7 +10,7 @@
 
 	enum Player {
 		P1,
-		P2,
+		P2
 	}
 
 	let currentPlayer: Player = Player.P1;
@@ -18,8 +18,8 @@
 	let cursorX = 0;
 	let cursorY = 0;
 
-    let isRotating = false;
-    let currentRotation = 0;
+	let isRotating = false;
+	let currentRotation = 0;
 	let rotationDisabled = false;
 
 	type Cracker = [position: Vector, rotation: number, player: Player];
@@ -36,7 +36,7 @@
 			{ x: w / 2, y: -h / 2 },
 			{ x: w / 2, y: h / 2 },
 			{ x: -w / 2, y: h / 2 }
-		]
+		];
 
 		const rotatedCorners = corners.map(({ x, y }) => ({
 			x: x * cos - y * sin,
@@ -48,9 +48,9 @@
 			y: y + position.y
 		}));
 	}
-	
+
 	function isColliding(size: Vector, crackerA: Cracker, crackerB: Cracker): boolean {
-		return intersect((corners(crackerA, size)), (corners(crackerB, size))).length > 0;
+		return intersect(corners(crackerA, size), corners(crackerB, size)).length > 0;
 	}
 
 	interface Vector {
@@ -86,33 +86,33 @@
 			context.stroke();
 		}
 
-        // draw the crackers
-        for (const cracker of crackers) {
+		// draw the crackers
+		for (const cracker of crackers) {
 			if (cracker[2] == Player.P1) {
 				context.fillStyle = '#5BC0EB';
 			} else {
 				context.fillStyle = '#9BC53D';
 			}
-            context.save();
-            context.beginPath();
-            context.translate(cracker[0].x, cracker[0].y);
-            context.rotate(cracker[1]);
-            context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
-            context.fill();
-            context.restore();
-        }
+			context.save();
+			context.beginPath();
+			context.translate(cracker[0].x, cracker[0].y);
+			context.rotate(cracker[1]);
+			context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
+			context.fill();
+			context.restore();
+		}
 
-        // handle rotation
-        if (isRotating) {
-            currentRotation += 2 * Math.PI / 60;
-            if (currentRotation >= 2 * Math.PI) {
-                currentRotation = 0;
-                isRotating = false;
-            }
-        }
+		// handle rotation
+		if (isRotating) {
+			currentRotation += (2 * Math.PI) / 60;
+			if (currentRotation >= 2 * Math.PI) {
+				currentRotation = 0;
+				isRotating = false;
+			}
+		}
 
 		// draw a rectangle at the cursor of unit size 1
-        context.save();
+		context.save();
 		context.beginPath();
 		let collidingCrackers = [];
 
@@ -122,37 +122,39 @@
 			}
 		}
 
-		const onEdge = corners([{ x: cursorX, y: cursorY }, currentRotation, 0], trueSize).some(({ x, y }) => {
-			return x < 0 || x > width || y < 0 || y > height;
-		});
+		const onEdge = corners([{ x: cursorX, y: cursorY }, currentRotation, 0], trueSize).some(
+			({ x, y }) => {
+				return x < 0 || x > width || y < 0 || y > height;
+			}
+		);
 
 		if (collidingCrackers.length > 0 || onEdge) {
-			context.fillStyle = "rgba(195, 66, 63, 0.5)";
+			context.fillStyle = 'rgba(195, 66, 63, 0.5)';
 			rotationDisabled = true;
 		} else {
 			context.fillStyle = 'rgba(0, 0, 0, 0.5)';
 			rotationDisabled = false;
 		}
 
-        context.translate(cursorX, cursorY);
-        context.rotate(currentRotation);
-        context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
+		context.translate(cursorX, cursorY);
+		context.rotate(currentRotation);
+		context.rect(-trueSize.x / 2, -trueSize.y / 2, trueSize.x, trueSize.y);
 		context.fill();
-        context.restore();
+		context.restore();
 	};
 </script>
 
 <svelte:window
-    on:keydown={({ key }) => {
-        if (key === 'r') {
-            isRotating = true;
-        }
-    }}
-    on:keyup={({ key }) => {
-        if (key === 'r') {
-            isRotating = false;
-        }
-    }}
+	on:keydown={({ key }) => {
+		if (key === 'r') {
+			isRotating = true;
+		}
+	}}
+	on:keyup={({ key }) => {
+		if (key === 'r') {
+			isRotating = false;
+		}
+	}}
 />
 
 <main>
@@ -177,8 +179,16 @@
 		</Canvas>
 	</div>
 
-	<p>Click to move. Press <code>r</code> to rotate. Last player to be able to move wins.</p>
-	</main>
+	<p>
+		Click to move. Press <code>r</code> to rotate. Last player to be able to move wins.
+		<button
+			on:click={() => {
+				crackers = [];
+				currentPlayer = Player.P1;
+			}}>Reset</button
+		>
+	</p>
+</main>
 
 <style>
 	.container {
