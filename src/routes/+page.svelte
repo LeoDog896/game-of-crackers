@@ -9,12 +9,12 @@
 
     let isRotating = false;
     let currentRotation = 0;
+	let rotationDisabled = false;
 
 	type Cracker = [position: Vector, rotation: number]
 
 	function corners(cracker: Cracker, size: Vector): Vector[] {
 		const [position, rotation] = cracker;
-		const { x, y } = position;
 		const { x: w, y: h } = size;
 
 		const cos = Math.cos(rotation);
@@ -119,7 +119,7 @@
 
         // handle rotation
         if (isRotating) {
-            currentRotation += 0.1;
+            currentRotation += 2 * Math.PI / 60;
             if (currentRotation >= 2 * Math.PI) {
                 currentRotation = 0;
                 isRotating = false;
@@ -138,9 +138,11 @@
 		}
 
 		if (collidingCrackers.length > 0) {
-			context.fillStyle = "rgba(255, 0, 0, 0.5)"
+			context.fillStyle = "rgba(255, 0, 0, 0.5)";
+			rotationDisabled = true;
 		} else {
 			context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+			rotationDisabled = false;
 		}
 
         context.translate(cursorX, cursorY);
@@ -169,12 +171,14 @@
 <Canvas
 	{width}
 	{height}
+	style="{rotationDisabled ? 'cursor: not-allowed' : ''}"
 	on:mousemove={({ clientX, clientY }) => {
 		cursorX = clientX;
 		cursorY = clientY;
 	}}
     on:click={() => {
-        crackers.push([{ x: cursorX, y: cursorY }, currentRotation]);
+		if (rotationDisabled) return;
+        crackers = [...crackers, [{ x: cursorX, y: cursorY }, currentRotation]];
     }}
 >
 	<Layer {render} />
