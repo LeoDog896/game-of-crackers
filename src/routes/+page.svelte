@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Canvas, Layer, type Render } from 'svelte-canvas';
+	import intersect from "polygons-intersect"
 
 	let width = 640;
 	let height = 640;
@@ -39,37 +40,7 @@
 	}
 	
 	function isColliding(size: Vector, crackerA: Cracker, crackerB: Cracker): boolean {
-		// check if 2 crackers are colliding independent of the mouse
-		for (const cracker of crackers) {
-			const points = corners(cracker, size);
-			for (let i1 = 0; i1 < points.length; i1++) {
-				const i2 = (i1 + 1) % points.length;
-				const p1 = points[i1];
-				const p2 = points[i2];
-
-				const normal = { x: p2.y - p1.y, y: p1.x - p2.x };
-
-				let minA = null;
-				let maxA = null;
-				for (const p of corners(crackerA, size)) {
-					const projected = normal.x * p.x + normal.y * p.y;
-					if (minA == null || projected < minA) minA = projected;
-					if (maxA == null || projected > maxA) maxA = projected;
-				}
-
-				let minB = null;
-				let maxB = null;
-				for (const p of corners(crackerB, size)) {
-					const projected = normal.x * p.x + normal.y * p.y;
-					if (minB == null || projected < minB) minB = projected;
-					if (maxB == null || projected > maxB) maxB = projected;
-				}
-
-				if ((maxA && maxB && minA && minB) && (maxA < minB || maxB < minA)) return false;
-			}
-		}
-
-		return true;
+		return intersect((corners(crackerA, size)), (corners(crackerB, size))).length > 0;
 	}
 
 	interface Vector {
@@ -79,7 +50,7 @@
 
 	let crackers: [position: Vector, rotation: number][] = [];
 
-	let cellDimensions: Vector = { x: 10, y: 10 };
+	let cellDimensions: Vector = { x: 4, y: 4 };
 
 	let render: Render;
 	$: render = ({ context, width, height }) => {
@@ -137,7 +108,11 @@
 			}
 		}
 
-		if (collidingCrackers.length > 0) {
+		const onEdge = corners([{ x: cursorX, y: cursorY }, currentRotation], trueSize).some(({ x, y }) => {
+			return x < 0 || x > width || y < 0 || y > height;
+		});
+
+		if (collidingCrackers.length > 0 || onEdge) {
 			context.fillStyle = "rgba(255, 0, 0, 0.5)";
 			rotationDisabled = true;
 		} else {
@@ -154,8 +129,6 @@
 </script>
 
 <svelte:window
-    bind:innerWidth={width}
-    bind:innerHeight={height}
     on:keydown={({ key }) => {
         if (key === 'r') {
             isRotating = true;

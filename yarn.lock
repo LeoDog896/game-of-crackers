@@ -299,6 +299,11 @@
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.12.tgz#d70faba7039d5fca54c83c7dbab41051d2b6f6cb"
   integrity sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==
 
+"@types/polygons-intersect@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/polygons-intersect/-/polygons-intersect-1.0.0.tgz#fc77b9c4cba59ef804449e378b688a4fdac9a478"
+  integrity sha512-i8ipC+/iFD+eYXFErym+rsyiK/t0tCMH7lnBgFsNTCwqbs+IPdeoOOloKdviWwVzeDennxJpqOgItAvNfiXDkg==
+
 "@types/pug@^2.0.6":
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/@types/pug/-/pug-2.0.6.tgz#f830323c88172e66826d0bde413498b61054b5a6"
@@ -1252,6 +1257,11 @@ picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.3.1:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
+
+polygons-intersect@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/polygons-intersect/-/polygons-intersect-1.0.3.tgz#34c691d2d27aabcc369479e0f810797816802f3c"
+  integrity sha512-Qsf5jSRqmNYMsAO7Ssntc8FbHxMn3dWyaVafLcHvQffdg/+nxNXSZztFylXBcvWf0/IclnL8A2XP9t8hdFxrcQ==
 
 postcss-load-config@^3.1.4:
   version "3.1.4"
