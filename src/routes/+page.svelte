@@ -8,6 +8,13 @@
 	$: width = Math.min(containerWidth, containerHeight);
 	$: height = Math.min(containerWidth, containerHeight);
 
+	enum Player {
+		P1,
+		P2,
+	}
+
+	let currentPlayer: Player = Player.P1;
+
 	let cursorX = 0;
 	let cursorY = 0;
 
@@ -15,7 +22,7 @@
     let currentRotation = 0;
 	let rotationDisabled = false;
 
-	type Cracker = [position: Vector, rotation: number]
+	type Cracker = [position: Vector, rotation: number, player: Player];
 
 	function corners(cracker: Cracker, size: Vector): Vector[] {
 		const [position, rotation] = cracker;
@@ -51,7 +58,7 @@
 		y: number;
 	}
 
-	let crackers: [position: Vector, rotation: number][] = [];
+	let crackers: Cracker[] = [];
 
 	let cellDimensions: Vector = { x: 4, y: 4 };
 
@@ -80,8 +87,12 @@
 		}
 
         // draw the crackers
-        context.fillStyle = '#4E878C';
         for (const cracker of crackers) {
+			if (cracker[2] == Player.P1) {
+				context.fillStyle = '#5BC0EB';
+			} else {
+				context.fillStyle = '#9BC53D';
+			}
             context.save();
             context.beginPath();
             context.translate(cracker[0].x, cracker[0].y);
@@ -106,17 +117,17 @@
 		let collidingCrackers = [];
 
 		for (const cracker of crackers) {
-			if (isColliding(trueSize, cracker, [{ x: cursorX, y: cursorY }, currentRotation])) {
+			if (isColliding(trueSize, cracker, [{ x: cursorX, y: cursorY }, currentRotation, 0])) {
 				collidingCrackers.push(cracker);
 			}
 		}
 
-		const onEdge = corners([{ x: cursorX, y: cursorY }, currentRotation], trueSize).some(({ x, y }) => {
+		const onEdge = corners([{ x: cursorX, y: cursorY }, currentRotation, 0], trueSize).some(({ x, y }) => {
 			return x < 0 || x > width || y < 0 || y > height;
 		});
 
 		if (collidingCrackers.length > 0 || onEdge) {
-			context.fillStyle = "rgba(255, 0, 0, 0.5)";
+			context.fillStyle = "rgba(195, 66, 63, 0.5)";
 			rotationDisabled = true;
 		} else {
 			context.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -144,31 +155,47 @@
     }}
 />
 
-<div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
-	<Canvas
-		{width}
-		{height}
-		style="border: 1px solid #ccc; {rotationDisabled ? 'cursor: not-allowed' : ''}"
-		on:mousemove={({ offsetX, offsetY }) => {
-			cursorX = offsetX;
-			cursorY = offsetY;
-		}}
-		on:click={() => {
-			if (rotationDisabled) return;
-			crackers = [...crackers, [{ x: cursorX, y: cursorY }, currentRotation]];
-		}}
-	>
-		<Layer {render} />
-	</Canvas>
-</div>
+<main>
+	<h1>Game of Crackers</h1>
+
+	<div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
+		<Canvas
+			{width}
+			{height}
+			style="border: 1px solid #ccc; {rotationDisabled ? 'cursor: not-allowed' : ''}"
+			on:mousemove={({ offsetX, offsetY }) => {
+				cursorX = offsetX;
+				cursorY = offsetY;
+			}}
+			on:click={() => {
+				if (rotationDisabled) return;
+				crackers = [...crackers, [{ x: cursorX, y: cursorY }, currentRotation, currentPlayer]];
+				currentPlayer = currentPlayer === Player.P1 ? Player.P2 : Player.P1;
+			}}
+		>
+			<Layer {render} />
+		</Canvas>
+	</div>
+
+	<p>Click to move. Press <code>r</code> to rotate. Last player to be able to move wins.</p>
+	</main>
 
 <style>
 	.container {
 		width: 100%;
-		height: 100%;
+		height: 80%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		
+	}
+
+	h1 {
+		margin-top: 0;
+	}
+
+	main {
+		height: 100%;
+		width: 100%;
+		text-align: center;
 	}
 </style>
